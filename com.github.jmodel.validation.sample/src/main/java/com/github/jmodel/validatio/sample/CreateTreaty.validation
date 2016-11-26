@@ -1,0 +1,38 @@
+validation com.github.jmodel.validatio.sample.CreateTreaty {
+	
+	source: JSON   
+	  
+	voc {
+		checkBBB : com.github.jmodel.validatio.sample.MyValidationService	
+	}
+	  
+	check A {
+		Treaty {
+//			checkBBB(1) << EffectiveDate;
+			
+			IF EffectiveDate > "2016-08-15" THEN
+				fail: "EffectiveDate is wrongxxx"
+			ENDIF
+		}
+		
+//		IF checkBBB THEN
+//			fail: "xxx"
+//		ENDIF
+	};   
+	
+	:Treaty.Type == "QuotaShare"
+	check QuotaShare {   
+		      
+		Treaty {
+			IF EffectiveDate > "2016-08-15" THEN
+				fail: "EffectiveDate is wrong"
+			ENDIF
+			
+			PolicyCustomerList[] {
+				IF #ExpiryDate=="2017-08-21" && Customer.PartyCode == "001265" THEN
+					fail: "Party Code is wrong"
+				ENDIF 
+			}   
+		}			       
+	};	
+}

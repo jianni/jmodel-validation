@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.github.jmodel.validation.api
+Bundle-SymbolicName: com.github.jmodel.validation.api;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: jmodel-validation
+Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
+ com.github.jmodel.api;bundle-version="0.0.1";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.log4j,
+ com.github.jmodel.api
+Bundle-ActivationPolicy: lazy
+Export-Package: com.github.jmodel.validation.api,
+ com.github.jmodel.validation.spi

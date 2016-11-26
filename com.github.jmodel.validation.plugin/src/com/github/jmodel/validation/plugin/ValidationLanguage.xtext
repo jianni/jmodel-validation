@@ -1,0 +1,89 @@
+grammar com.github.jmodel.validation.plugin.ValidationLanguage with org.eclipse.xtext.xbase.Xbase
+
+generate validationLanguage "http://www.github.com/jianni/jmodel-validation/ValidationLanguage"
+import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
+
+Validation:
+	'validation' name=QualifiedName ('extends' superType=[Validation|QualifiedName])? '{' source=Source (voc=Voc)?
+	body=Body '}';
+
+Source:
+	'source:' name=Format ('[' schema=QualifiedName ']')?;
+
+Voc:
+	'voc' '{' items+=Item+ '}';
+	
+Item:
+	name=ID ':' validationService=QualifiedName;	
+
+Body returns xbase::XBlockExpression:
+	{Body}
+	checks+=Check+;
+
+Check returns xbase::XBlockExpression:
+	{Check}
+	(precondition=Precondition)?
+	'check' ID '{' blocks+=Block+ checkServices+=CheckService* '};';
+
+Block returns xbase::XBlockExpression:
+	{Block}
+	modelPath=ModelPathExpr
+	'{' (filter=Filter)?
+	rules+=Rule+ blocks+=Block* '}';
+
+CheckService returns xbase::XExpression:
+	{CheckService}
+	fieldPathIf=FieldPathIf;
+
+AbsolutePath:
+	'#'+;
+
+ModelPathExpr:
+	('.' | ValidID) ('[]')? (=> '.' ValidID ('[]')?)*;
+
+Precondition:
+	{Precondition}
+	':' expression=XOrExpression;
+
+Filter:
+	{Filter}
+	':' expression=XOrExpression;
+
+Variable returns xbase::XExpression:
+	{Variable}
+	expression=VariablePath;
+
+VariablePath:
+	'${' ValidID '}';
+
+SingleFieldPath returns xbase::XExpression:
+	{SingleFieldPath}
+	(absolutePath=AbsolutePath)? content=QualifiedName;
+
+XPrimaryExpression returns xbase::XExpression:
+	XBlockExpression |
+	XIfExpression |
+	XParenthesizedExpression |
+	XLiteral |
+	SingleFieldPath |
+	Variable;
+
+OpCompare:
+	'>=' | '<' '=' | '>' | '<' | 'in';
+
+Rule returns xbase::XExpression:
+	{Rule}
+	fieldPathIf=FieldPathIf;
+
+FieldPathIf returns xbase::XIfExpression:
+	{FieldPathIf}
+	"IF" if=XOrExpression "THEN"
+	then=FailedMessageSetting
+	"ENDIF";
+
+FailedMessageSetting returns xbase::XBlockExpression:
+	{FailedMessageSetting}
+	'fail:' message=STRING;
+
+enum Format:
+	XML='XML' | JSON='JSON' | BEAN='BEAN';

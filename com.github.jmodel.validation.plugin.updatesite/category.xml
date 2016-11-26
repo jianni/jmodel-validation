@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.github.jmodel.validation.plugin.sdk_0.0.1.qualifier.jar" id="com.github.jmodel.validation.plugin.sdk" version="0.0.1.qualifier">
+      <category name="com.github.jmodel.validation.plugin"/>
+   </feature>
+   <category-def name="com.github.jmodel.validation.plugin" label="Validation Language"/>
+</site>

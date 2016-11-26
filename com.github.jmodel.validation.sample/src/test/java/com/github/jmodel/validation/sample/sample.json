@@ -1,0 +1,94 @@
+{
+  "Type" : "QuotaShare",
+  "EffectiveDate": "2016-08-25",
+  "ExpiryDate": "2017-08-24",
+  "SalesChannelOrg": {
+      "PartyAddressList": [
+         {
+            "IsPrimaryAddress": "Y",
+            "AddressLine2": "address line 2",
+            "Country": "1",
+            "AddressLine1": "address line 1",
+            "City": "310100",
+            "Province": "310000"
+          }
+        ],
+      "PartyContactList": [
+          {
+            "IsPrimaryContact": "Y",
+            "Name": "jmodel contact name"
+          }
+        ],
+      "PartyName": "jmodel party name"
+  },
+  "PolicyCustomerList": [
+    {
+      "Customer": {
+        "PartyAddressList": [
+          {
+            "IsPrimaryAddress": "Y",
+            "AddressLine2": "jmodel address line 2",
+            "Country": "1",
+            "AddressLine1": "jmodel address line 1",
+            "City": "310100",
+            "Province": "310000"
+          }
+        ],
+        "PartyCode": "001265",
+        "PartyContactList": [
+          {
+            "IsPrimaryContact": "Y",
+            "Name": "jmodel contact name"
+          }
+        ],
+        "PartyType": "21"
+      }
+    },
+    {
+      "Customer": {
+        "PartyAddressList": [
+          {
+            "IsPrimaryAddress": "Y",
+            "AddressLine2": "jmodel address line 2",
+            "Country": "1",
+            "AddressLine1": "jmodel address line 1",
+            "City": "310100",
+            "Province": "310000"
+          }
+        ],
+        "PartyContactList": [
+          {
+            "IsPrimaryContact": "Y",
+            "Name": "jmodel contact name"
+          }
+        ],
+        "PartyType": "21"
+      }
+    }
+  ],
+  "PolicyLobList": [
+    {
+      "ProductId": 12345,
+      "PolicyCoverageList": [
+            {
+              
+            }
+          ],
+      "PolicyRiskList": [
+        {
+          "InsuredId": 111111,
+          "SumInsured": 1234567,
+          "Address": "test",
+          "City": "310100",
+          "PolicyCoverageList": [
+            {
+              
+            }
+          ],
+          "Province": "310000",
+          "Country": "1"
+        }
+      ]
+    }
+  ]
+}
