@@ -71,9 +71,16 @@ public class ValidationEngineImpl implements ValidationEngine {
 
 		Model sourceModel = analyzer.process(templateModel.clone(), sourceObj, false);
 		ValidationResult result = new ValidationResult();
-		validation.execute(sourceModel, result, currentLocale);
+		Map<String, List<String>> serviceArgsMap = new HashMap<String, List<String>>();
+		List<String> serviceList = validation.getServiceList();
+		for (String service : serviceList) {
+			serviceArgsMap.put(service, new ArrayList<String>());
+		}
+		validation.execute(sourceModel, serviceArgsMap, result, currentLocale);
 		if (result.getMessages().size() > 0) {
 			result.setSuccess(false);
+		} else {
+			result.setSuccess(true);
 		}
 		return result;
 	}

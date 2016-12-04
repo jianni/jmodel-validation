@@ -1,21 +1,22 @@
 package com.github.jmodel.validation.plugin.jvmmodel
 
+import com.github.jmodel.api.Model
+import com.github.jmodel.validation.api.ValidationResult
+import com.github.jmodel.validation.plugin.util.Util
+import com.github.jmodel.validation.plugin.validationLanguage.Block
+import com.github.jmodel.validation.plugin.validationLanguage.Precondition
+import com.github.jmodel.validation.plugin.validationLanguage.Service
+import com.github.jmodel.validation.plugin.validationLanguage.SingleFieldPath
+import com.github.jmodel.validation.plugin.validationLanguage.Validation
 import com.google.inject.Inject
+import java.util.Locale
+import java.util.Map
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
-import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
-import com.github.jmodel.validation.plugin.validationLanguage.Validation
-import java.util.Locale
-import com.github.jmodel.api.Model
-import com.github.jmodel.validation.plugin.util.Util
-import com.github.jmodel.validation.plugin.validationLanguage.Block
-import com.github.jmodel.validation.plugin.validationLanguage.SingleFieldPath
-import com.github.jmodel.validation.plugin.validationLanguage.Precondition
-import com.github.jmodel.validation.api.ValidationResult
-import com.github.jmodel.validation.plugin.validationLanguage.Item
-import com.github.jmodel.validation.api.ValidationHelper
+import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor.IPostIndexingInitializing
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -56,7 +57,7 @@ class ValidationLanguageJvmModelInferrer extends AbstractModelInferrer {
 	 *            <code>true</code>.
 	 */
 	def dispatch void infer(Validation element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-
+		
 		acceptor.accept(element.toClass(element.name)) [
 
 			if (element.superType == null) {
@@ -104,7 +105,8 @@ class ValidationLanguageJvmModelInferrer extends AbstractModelInferrer {
 			]
 
 			members += element.toMethod("execute", typeRef(void)) [
-				parameters += element.toParameter("model", typeRef(Model))
+				parameters += element.toParameter("model", typeRef(Model))				
+				parameters += element.toParameter("serviceArgsMap", typeRef(Map))
 				parameters += element.toParameter("result", typeRef(ValidationResult))
 				parameters += element.toParameter("currentLocale", typeRef(Locale))
 				annotations += annotationRef("java.lang.Override")
@@ -126,11 +128,9 @@ class ValidationLanguageJvmModelInferrer extends AbstractModelInferrer {
 		com.github.jmodel.api.Entity rootModel = new com.github.jmodel.impl.EntityImpl();
 		myInstance.setTemplateModel(rootModel);
 		
-		«IF element.voc!=null»
-			«FOR item : element.voc.eAllContents.toIterable.filter(typeof(Item))»
-				myInstance.getVocMap().put("«item.name»",com.github.jmodel.validation.api.ValidationHelper.getService("«item.validationService»"));
-			«ENDFOR»
-		«ENDIF»
+		«FOR service : element.eAllContents.toIterable.filter(typeof(Service))»
+			myInstance.getServiceList().add("«service.serviceName»");
+		«ENDFOR»
 					
 	'''
 

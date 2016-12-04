@@ -1,5 +1,12 @@
 package com.github.jmodel.validation.plugin.jvmmodel
 
+import com.github.jmodel.validation.plugin.util.Util
+import com.github.jmodel.validation.plugin.validationLanguage.Block
+import com.github.jmodel.validation.plugin.validationLanguage.Body
+import com.github.jmodel.validation.plugin.validationLanguage.CheckModel
+import com.github.jmodel.validation.plugin.validationLanguage.FailedMessageSetting
+import com.github.jmodel.validation.plugin.validationLanguage.Rule
+import com.github.jmodel.validation.plugin.validationLanguage.SingleFieldPath
 import org.eclipse.xtext.xbase.XBinaryOperation
 import org.eclipse.xtext.xbase.XBooleanLiteral
 import org.eclipse.xtext.xbase.XExpression
@@ -9,13 +16,9 @@ import org.eclipse.xtext.xbase.XNumberLiteral
 import org.eclipse.xtext.xbase.XStringLiteral
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
-import com.github.jmodel.validation.plugin.util.Util
-import com.github.jmodel.validation.plugin.validationLanguage.Body
-import com.github.jmodel.validation.plugin.validationLanguage.Check
-import com.github.jmodel.validation.plugin.validationLanguage.Block
-import com.github.jmodel.validation.plugin.validationLanguage.Rule
-import com.github.jmodel.validation.plugin.validationLanguage.SingleFieldPath
-import com.github.jmodel.validation.plugin.validationLanguage.FailedMessageSetting
+import com.github.jmodel.validation.plugin.validationLanguage.CheckService
+import com.github.jmodel.validation.plugin.validationLanguage.ArgsSetting
+import com.github.jmodel.validation.plugin.validationLanguage.Arg
 
 /**
  * The main procedure of compiling:
@@ -34,13 +37,17 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 		switch expr {
 			Body: {
 				newLine
-				append('''super.execute(model, result, currentLocale);''')
+				append('''super.execute(model, serviceArgsMap, result, currentLocale);''')
 
-				for (check : expr.checks) {
+				for (check : expr.checkModels) {
 					doInternalToJavaStatement(check, it, isReferenced)
 				}
+				
+				if(expr.checkService != null) {
+					doInternalToJavaStatement(expr.checkService, it, isReferenced)
+				}
 			}
-			Check: {
+			CheckModel: {
 				if (expr.precondition != null) {
 					newLine
 					append('''if(''')
@@ -60,6 +67,51 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 					append('''}''')
 				}
 
+			}
+			CheckService: {
+				for(validator : expr.services) {
+					newLine
+					append('''{''')
+					
+					newLine
+					append('''com.github.jmodel.validation.api.ext.ExtValidator validator = com.github.jmodel.validation.api.ext.ExtValidatorProviderService.getInstance().getValidator("«validator.serviceName»");''')
+					
+					newLine
+					append('''if (validator != null) {''')
+										
+					newLine
+					append('''java.util.List<String> args = (java.util.List<String>)(serviceArgsMap.get("«validator.serviceName»"));''')
+					
+					newLine
+					append('''ValidationResult extResult = validator.check(''')
+					
+					for(var i = 0; i < validator.argsCount; i++) {
+						if(i == 0) {
+							append('''args.get(«i»)''')						
+						}else{
+							append(''', args.get(«i»)''')
+						}
+					}
+					append(''');''')	
+					
+					newLine
+					append('''result.getMessages().addAll(extResult.getMessages());''')		
+					
+					newLine
+					append('''}''')	
+										
+					newLine
+					append('''}''')						
+				}
+				
+			}
+			ArgsSetting: {
+				newLine
+				append('''((java.util.List<String>)(serviceArgsMap.get("«expr.serviceName»"))).add(«expr.argIndex-1», String.valueOf(''')
+				
+				doInternalToJavaStatement((expr.arg as Arg).expression, it, isReferenced)
+				
+				append('''));''')
 			}
 			Block: {
 				val fullModelPath = Util.getFullModelPath(expr)
@@ -127,12 +179,8 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 
 				}
 
-				for (rule : expr.rules) {
-					doInternalToJavaStatement(rule, it, isReferenced)
-				}
-
-				for (block : expr.blocks) {
-					doInternalToJavaStatement(block, it, isReferenced)
+				for (blockContent : expr.blockContents) {
+					doInternalToJavaStatement(blockContent.content, it, isReferenced)
 				}
 
 				// self is array

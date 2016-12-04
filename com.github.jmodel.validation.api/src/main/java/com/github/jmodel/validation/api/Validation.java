@@ -24,7 +24,7 @@ public abstract class Validation {
 
 	private List<String> rawFieldPaths = new ArrayList<String>();
 
-	private Map<String, ValidationService> vocMap = new HashMap<String, ValidationService>();
+	private List<String> serviceList = new ArrayList<String>();
 
 	private boolean isSuccess;
 
@@ -78,12 +78,12 @@ public abstract class Validation {
 		this.rawFieldPaths = rawFieldPaths;
 	}
 
-	public Map<String, ValidationService> getVocMap() {
-		return vocMap;
+	public List<String> getServiceList() {
+		return serviceList;
 	}
 
-	public void setVocMap(Map<String, ValidationService> vocMap) {
-		this.vocMap = vocMap;
+	public void setServiceList(List<String> serviceList) {
+		this.serviceList = serviceList;
 	}
 
 	public boolean isSuccess() {
@@ -106,7 +106,8 @@ public abstract class Validation {
 
 	}
 
-	public void execute(final Model model, final ValidationResult result, final Locale currentLocale) {
+	public void execute(final Model model, final Map<String, List<String>> serviceArgsMap,
+			final ValidationResult result, final Locale currentLocale) {
 
 	}
 

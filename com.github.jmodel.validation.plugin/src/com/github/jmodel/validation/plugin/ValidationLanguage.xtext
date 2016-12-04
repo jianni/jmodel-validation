@@ -4,36 +4,61 @@ generate validationLanguage "http://www.github.com/jianni/jmodel-validation/Vali
 import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
 
 Validation:
-	'validation' name=QualifiedName ('extends' superType=[Validation|QualifiedName])? '{' source=Source (voc=Voc)?
+	'validation' name=QualifiedName ('extends' superType=[Validation|QualifiedName])? '{' source=Source
 	body=Body '}';
 
 Source:
 	'source:' name=Format ('[' schema=QualifiedName ']')?;
 
-Voc:
-	'voc' '{' items+=Item+ '}';
-	
-Item:
-	name=ID ':' validationService=QualifiedName;	
-
 Body returns xbase::XBlockExpression:
 	{Body}
-	checks+=Check+;
+	checkModels+=CheckModel+ (checkService=CheckService)?;
 
-Check returns xbase::XBlockExpression:
-	{Check}
+CheckModel returns xbase::XBlockExpression:
+	{CheckModel}
 	(precondition=Precondition)?
-	'check' ID '{' blocks+=Block+ checkServices+=CheckService* '};';
+	'check' 'model' ID '{' blocks+=Block+ '};';
+
+CheckService returns xbase::XBlockExpression:
+	{CheckService}
+	'check' 'service' '{' services+=Service+ '};';
+
+Service:
+	{Service}
+	serviceName=ServiceName '(' argsCount=INT ')' ';';
+
+ServiceName:
+	ID;
 
 Block returns xbase::XBlockExpression:
 	{Block}
-	modelPath=ModelPathExpr
+	(absolutePath=AbsolutePath)? modelPath=ModelPathExpr
 	'{' (filter=Filter)?
-	rules+=Rule+ blocks+=Block* '}';
+	blockContents+=BlockContent* '}';
 
-CheckService returns xbase::XExpression:
-	{CheckService}
+BlockContent:
+	{BlockContent}
+	content=(Rule | Block | ArgsSetting);
+
+Rule returns xbase::XExpression:
+	{Rule}
 	fieldPathIf=FieldPathIf;
+
+ArgsSetting returns xbase::XExpression:
+	{ArgsSetting}
+	serviceName=ServiceName '(' argIndex=INT ')' '<<' arg=Arg ';';
+
+Arg returns xbase::XExpression:
+	{Arg}
+	expression=(FieldPathXLiteral | FieldPathXParenthesizedExpression | SingleFieldPath | Variable);
+
+FieldPathXLiteral returns xbase::XExpression:
+	{FieldPathXLiteral}
+	content=XLiteral;
+
+FieldPathXParenthesizedExpression returns xbase::XExpression:
+	{FieldPathXParenthesizedExpression}
+	content=XParenthesizedExpression;
 
 AbsolutePath:
 	'#'+;
@@ -70,10 +95,6 @@ XPrimaryExpression returns xbase::XExpression:
 
 OpCompare:
 	'>=' | '<' '=' | '>' | '<' | 'in';
-
-Rule returns xbase::XExpression:
-	{Rule}
-	fieldPathIf=FieldPathIf;
 
 FieldPathIf returns xbase::XIfExpression:
 	{FieldPathIf}

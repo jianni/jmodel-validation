@@ -2,6 +2,7 @@ package com.github.jmodel.validation.api;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -9,6 +10,8 @@ import java.util.function.Predicate;
 import com.github.jmodel.api.Entity;
 import com.github.jmodel.api.IllegalException;
 import com.github.jmodel.api.Model;
+import com.github.jmodel.validation.api.ext.ExtValidator;
+import com.github.jmodel.validation.api.ext.ExtValidatorProviderService;
 
 public class ValidationHelper {
 
