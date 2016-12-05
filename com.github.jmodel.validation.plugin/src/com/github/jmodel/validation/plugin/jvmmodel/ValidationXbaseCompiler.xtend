@@ -19,6 +19,7 @@ import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import com.github.jmodel.validation.plugin.validationLanguage.CheckService
 import com.github.jmodel.validation.plugin.validationLanguage.ArgsSetting
 import com.github.jmodel.validation.plugin.validationLanguage.Arg
+import com.github.jmodel.validation.plugin.validationLanguage.Variable
 
 /**
  * The main procedure of compiling:
@@ -37,7 +38,7 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 		switch expr {
 			Body: {
 				newLine
-				append('''super.execute(model, serviceArgsMap, result, currentLocale);''')
+				append('''super.execute(model, serviceArgsMap, myVariablesMap, result, currentLocale);''')
 
 				for (check : expr.checkModels) {
 					doInternalToJavaStatement(check, it, isReferenced)
@@ -107,11 +108,11 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 			}
 			ArgsSetting: {
 				newLine
-				append('''((java.util.List<String>)(serviceArgsMap.get("«expr.serviceName»"))).add(«expr.argIndex-1», String.valueOf(''')
+				append('''com.github.jmodel.validation.api.ValidationHelper.addArg(serviceArgsMap, "«expr.serviceName»", «expr.argIndex-1», ''')
 				
 				doInternalToJavaStatement((expr.arg as Arg).expression, it, isReferenced)
 				
-				append('''));''')
+				append(''');''')
 			}
 			Block: {
 				val fullModelPath = Util.getFullModelPath(expr)
@@ -201,14 +202,15 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 
 			}
 			SingleFieldPath: {
+				var String fieldValue = null;
 				if (Util.isInPrecondition(expr)) {
-					append('''model.getFieldPathMap().get("«expr.content»").getValue()''')
+					fieldValue = '''com.github.jmodel.api.ModelHelper.getFieldValue(model.getFieldPathMap().get("«expr.content»"))'''
 				} else {
 					val fullModelPath = Util.getFullModelPath(expr)
 					if (Util.isArrayPath(expr)) {
 						if (Util.isInFilter(expr)) {
 							val f = getName(fullModelPath + "_f")
-							append('''model.getFieldPathMap().get(«f» + ".«expr.content»").getValue()''')
+							fieldValue = '''com.github.jmodel.api.ModelHelper.getFieldValue(model.getFieldPathMap().get(«f» + ".«expr.content»"))'''
 						} else {
 							var String m = null
 							if (expr.absolutePath != null) {
@@ -217,17 +219,63 @@ class ValidationXbaseCompiler extends XbaseCompiler {
 							} else {
 								m = getName(fullModelPath + "_m")
 							}
-							append('''model.getFieldPathMap().get(«m» + ".«expr.content»").getValue()''')
+							fieldValue = '''com.github.jmodel.api.ModelHelper.getFieldValue(model.getFieldPathMap().get(«m» + ".«expr.content»"))'''
 						}
 
 					} else {
-						append('''model.getFieldPathMap().get("«fullModelPath».«expr.content»").getValue()''')
+						fieldValue = '''com.github.jmodel.api.ModelHelper.getFieldValue(model.getFieldPathMap().get("«fullModelPath».«expr.content»"))'''
 					}
 				}
+				
+				switch(expr.dataType){
+					case BOOL: {
+					}
+					case DATE: {
+						if(expr.pattern != null) {
+							append('''com.github.jmodel.api.ModelHelper.getDate(«fieldValue», "«expr.pattern»")''')
+						}else {
+							append('''com.github.jmodel.api.ModelHelper.getDate(«fieldValue»)''')
+						}
+					}
+					case DEC: {
+					}
+					case INT: {
+					}
+					case LONG: {
+					}
+					default: {
+						append('''String.valueOf(«fieldValue»)''')
+					}					
+				}				
+				
+				
 			}
 			FailedMessageSetting: {
 				newLine
 				append('''result.getMessages().add("«expr.message»");''')
+			}
+			Variable: {
+				var String variableValue = '''myVariablesMap.get("«Util.getVariableName(expr.expression)»")''';
+				switch(expr.dataType){
+					case BOOL: {
+					}
+					case DATE: {
+						if(expr.pattern != null) {
+							append('''com.github.jmodel.api.ModelHelper.getDate(String.valueOf(«variableValue»), "«expr.pattern»")''')
+						}else {
+							append('''com.github.jmodel.api.ModelHelper.getDate(String.valueOf(«variableValue»))''')
+						}
+					}
+					case DEC: {
+					}
+					case INT: {
+					}
+					case LONG: {
+					}
+					default: {
+						append('''String.valueOf(«variableValue»)''')
+					}					
+				}				
 			}
 			XIfExpression: {
 				newLine

@@ -1,7 +1,8 @@
 package com.github.jmodel.validation.api;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -12,6 +13,8 @@ import com.github.jmodel.api.Model;
 
 public abstract class Validation {
 
+	protected  final static DateFormat dateFormat = new SimpleDateFormat();
+	
 	private FormatEnum format;
 
 	private Analyzer analyzer;
@@ -107,7 +110,7 @@ public abstract class Validation {
 	}
 
 	public void execute(final Model model, final Map<String, List<String>> serviceArgsMap,
-			final ValidationResult result, final Locale currentLocale) {
+			final Map<String, Object> myVariablesMap, final ValidationResult result, final Locale currentLocale) {
 
 	}
 

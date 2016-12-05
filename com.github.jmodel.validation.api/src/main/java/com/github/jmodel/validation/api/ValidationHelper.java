@@ -1,30 +1,24 @@
 package com.github.jmodel.validation.api;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.github.jmodel.api.Entity;
-import com.github.jmodel.api.IllegalException;
 import com.github.jmodel.api.Model;
-import com.github.jmodel.validation.api.ext.ExtValidator;
-import com.github.jmodel.validation.api.ext.ExtValidatorProviderService;
 
 public class ValidationHelper {
 
-	public static ValidationService getService(String serviceName) {
-		ResourceBundle messages = ResourceBundle.getBundle("com.github.jmodel.validation.api.MessagesBundle",
-				Locale.getDefault());
-		Class<?> mappingClz;
-		try {
-			mappingClz = Class.forName(serviceName);
-			return (ValidationService) (mappingClz.newInstance());
-		} catch (Exception e) {
-			throw new IllegalException(messages.getString("V_IS_MISSING"));
+	@SuppressWarnings("unchecked")
+	public static void addArg(final Map<String, Object> serviceArgsMap, final String validatorName, final int index,
+			String value) {
+		Object serviceArgs = serviceArgsMap.get("checkAAA");
+		if (serviceArgs == null) {
+			return;
 		}
+
+		((List<String>) serviceArgs).add(index, value);
 	}
 
 	public static <T> void arrayCheck(final Model model, final String modelPath, final Predicate<String> p,

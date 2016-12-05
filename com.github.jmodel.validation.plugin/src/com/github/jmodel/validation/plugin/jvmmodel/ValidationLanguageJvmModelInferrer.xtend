@@ -17,6 +17,7 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor.IPostIndexingInitializing
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
+import com.github.jmodel.validation.plugin.validationLanguage.Variable
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -107,6 +108,7 @@ class ValidationLanguageJvmModelInferrer extends AbstractModelInferrer {
 			members += element.toMethod("execute", typeRef(void)) [
 				parameters += element.toParameter("model", typeRef(Model))				
 				parameters += element.toParameter("serviceArgsMap", typeRef(Map))
+				parameters += element.toParameter("myVariablesMap", typeRef(Map))
 				parameters += element.toParameter("result", typeRef(ValidationResult))
 				parameters += element.toParameter("currentLocale", typeRef(Locale))
 				annotations += annotationRef("java.lang.Override")
@@ -136,9 +138,9 @@ class ValidationLanguageJvmModelInferrer extends AbstractModelInferrer {
 
 	def genOriginalPaths(Validation element) '''
 		
-		«««			«FOR variable : element.eAllContents.toIterable.filter(typeof(Variable))»
-«««			myInstance.getRawVariables().add("«Util.getVariableName(variable.expression)»");
-«««			«ENDFOR»
+		«FOR variable : element.eAllContents.toIterable.filter(typeof(Variable))»
+			myInstance.getRawVariables().add("«Util.getVariableName(variable.expression)»");
+		«ENDFOR»
 
 		«FOR block : element.eAllContents.toIterable.filter(typeof(Block))»
 				myInstance.getRawFieldPaths().add("«Util.getFullModelPath(block)»._");

@@ -76,14 +76,14 @@ Filter:
 
 Variable returns xbase::XExpression:
 	{Variable}
-	expression=VariablePath;
+	expression=VariablePath ('(' dataType=DataType (':' pattern=STRING)? ')')?;
 
 VariablePath:
 	'${' ValidID '}';
 
 SingleFieldPath returns xbase::XExpression:
 	{SingleFieldPath}
-	(absolutePath=AbsolutePath)? content=QualifiedName;
+	(absolutePath=AbsolutePath)? content=QualifiedName ('(' dataType=DataType (':' pattern=STRING)? ')')?;
 
 XPrimaryExpression returns xbase::XExpression:
 	XBlockExpression |
@@ -108,3 +108,6 @@ FailedMessageSetting returns xbase::XBlockExpression:
 
 enum Format:
 	XML='XML' | JSON='JSON' | BEAN='BEAN';
+
+enum DataType:
+	STR='STR' | INT='INT' | LONG='LONG' | BOOL='BOOL' | DEC='DEC' | DATE='DATE';		

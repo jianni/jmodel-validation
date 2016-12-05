@@ -32,10 +32,19 @@ public class ValidationEngineImpl implements ValidationEngine {
 	protected static String NAME_PATTERN = "([a-zA-Z_][a-zA-Z\\d_]*\\.)*[a-zA-Z_][a-zA-Z\\d_]*";
 
 	public <T> ValidationResult check(T sourceObj, String validationURI) {
-		return check(sourceObj, validationURI, Locale.getDefault());
+		return check(sourceObj, validationURI, null, Locale.getDefault());
+	}
+
+	public <T> ValidationResult check(T sourceObj, String validationURI, Map<String, Object> argsMap) {
+		return check(sourceObj, validationURI, argsMap, Locale.getDefault());
 	}
 
 	public <T> ValidationResult check(T sourceObj, String validationURI, Locale currentLocale) {
+		return check(sourceObj, validationURI, null, Locale.getDefault());
+	}
+
+	public <T> ValidationResult check(T sourceObj, String validationURI, Map<String, Object> argsMap,
+			Locale currentLocale) {
 
 		messages = ResourceBundle.getBundle("com.github.jmodel.validation.api.MessagesBundle", currentLocale);
 
@@ -44,19 +53,29 @@ public class ValidationEngineImpl implements ValidationEngine {
 		}
 
 		// TODO consider more loading mechanism later, local or remote
-		Class<?> mappingClz;
+		Class<?> validationClz;
 		try {
-			mappingClz = Class.forName(validationURI);
+			validationClz = Class.forName(validationURI);
 		} catch (ClassNotFoundException e) {
 			throw new IllegalException(messages.getString("V_IS_MISSING"));
 		}
 
 		Validation validation;
 		try {
-			Method method = mappingClz.getMethod("getInstance");
+			Method method = validationClz.getMethod("getInstance");
 			validation = (Validation) (method.invoke(null));
 		} catch (Exception e) {
 			throw new IllegalException(messages.getString("V_IS_ILLEGAL"));
+		}
+
+		// check variables
+		if (validation.getRawVariables().size() > 0) {
+			if (argsMap == null || argsMap.size() == 0) {
+				throw new IllegalException(messages.getString("V_NOT_FOUND"));
+			}
+			if (argsMap.keySet().parallelStream().filter(s -> validation.getRawVariables().contains(s)).count() == 0) {
+				throw new IllegalException(messages.getString("V_NOT_FOUND"));
+			}
 		}
 
 		AnalyzerFactoryService analyzerFactoryService = AnalyzerFactoryService.getInstance();
@@ -76,7 +95,7 @@ public class ValidationEngineImpl implements ValidationEngine {
 		for (String service : serviceList) {
 			serviceArgsMap.put(service, new ArrayList<String>());
 		}
-		validation.execute(sourceModel, serviceArgsMap, result, currentLocale);
+		validation.execute(sourceModel, serviceArgsMap, argsMap, result, currentLocale);
 		if (result.getMessages().size() > 0) {
 			result.setSuccess(false);
 		} else {
