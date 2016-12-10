@@ -6,21 +6,18 @@
 		<relativePath>../com.github.jmodel.validation.parent/pom.xml</relativePath>
 		<groupId>com.github.jmodel</groupId>
 		<artifactId>com.github.jmodel.validation.parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 	</parent>
 
 	<artifactId>com.github.jmodel.validation.api</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
 	<name>jmodel-validation API</name>
-	<url>http://www.github.com/jianni/jmodel-validation</url>
-
 
 	<dependencies>
 		<dependency>
 			<groupId>com.github.jmodel</groupId>
 			<artifactId>com.github.jmodel.api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

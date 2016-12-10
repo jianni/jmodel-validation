@@ -2,7 +2,7 @@
 <feature
       id="com.github.jmodel.validation.plugin.sdk"
       label="ValidationLanguage SDK Feature "
-      version="0.0.1.qualifier">
+      version="0.0.1">
 
    <requires>
       <import feature="org.eclipse.xtext.runtime" version="2.8.0" match="greaterOrEqual"/>
@@ -13,21 +13,21 @@
          id="com.github.jmodel.validation.api"
          download-size="0"
          install-size="0"
-         version="0.0.1.qualifier"
+         version="0.0.1"
          unpack="false"/>
          
    <plugin
          id="com.github.jmodel.validation.plugin"
          download-size="0"
          install-size="0"
-         version="0.0.1.qualifier"
+         version="0.0.1"
          unpack="false"/>
 
    <plugin
          id="com.github.jmodel.validation.plugin.ui"
          download-size="0"
          install-size="0"
-         version="0.0.1.qualifier"
+         version="0.0.1"
          unpack="false"/>
 
 </feature>
